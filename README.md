@@ -149,6 +149,63 @@ Outputs:
 - `vgg_a/*/step_trace.csv` and `vgg_bn/*/step_trace.csv`: per-step loss/gradient traces.
 - `vgg_a/*/last.pt` and `vgg_bn/*/last.pt`: trained model weights.
 
+## Model Weights
+
+Model weights are not committed to GitHub. Download them from the shared
+network-disk folder:
+
+```text
+Baidu Netdisk: https://pan.baidu.com/s/1msDL24TwV2TTiIouIcM1KQ
+Extraction code: pbh9
+```
+
+After downloading, put the three `.pt` files under the following paths if you
+want to match the experiment paths used in the report:
+
+```bash
+mkdir -p reports/experiments/best_cifar_cnn_20e
+mkdir -p reports/experiments/bn_loss_landscape_5e_subset/vgg_a/1em03
+mkdir -p reports/experiments/bn_loss_landscape_5e_subset/vgg_bn/1em03
+
+mv cifar_best_cnn_20e_best.pt \
+  reports/experiments/best_cifar_cnn_20e/best.pt
+
+mv vgg_a_lr1e-3_last.pt \
+  reports/experiments/bn_loss_landscape_5e_subset/vgg_a/1em03/last.pt
+
+mv vgg_a_bn_lr1e-3_last.pt \
+  reports/experiments/bn_loss_landscape_5e_subset/vgg_bn/1em03/last.pt
+```
+
+Weight meanings:
+
+- `cifar_best_cnn_20e_best.pt`: best full CIFAR-10 model, reported test error
+  `12.23%`.
+- `vgg_a_lr1e-3_last.pt`: VGG-A checkpoint for the BatchNorm comparison.
+- `vgg_a_bn_lr1e-3_last.pt`: VGG-A + BatchNorm checkpoint for the BatchNorm
+  comparison.
+
+Example for loading the best CIFAR-10 checkpoint:
+
+```python
+import torch
+from models.vgg import CIFARConvNet
+
+model = CIFARConvNet(
+    channels=(64, 128, 256, 512),
+    activation="relu",
+    batch_norm=True,
+    dropout=0.2,
+    classifier_hidden=512,
+)
+checkpoint = torch.load(
+    "reports/experiments/best_cifar_cnn_20e/best.pt",
+    map_location="cpu",
+)
+model.load_state_dict(checkpoint["model_state"])
+model.eval()
+```
+
 ## Notes
 
 Model weights, CIFAR-10 files and generated experiment outputs are intentionally
